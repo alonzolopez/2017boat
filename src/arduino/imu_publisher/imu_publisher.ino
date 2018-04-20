@@ -7,6 +7,7 @@
  
  #include <ros.h>
  #include <std_msgs/Float32MultiArray.h>
+ #include <std_msgs/Int16MultiArray.h>
  #include <Wire.h>
  #include <Adafruit_Sensor.h>
  #include <Adafruit_BNO055.h>
@@ -16,7 +17,8 @@
  float x, y, z;
  
  ros::NodeHandle nh;
- std_msgs::Float32MultiArray sensor_arr_msg;
+ //std_msgs::Float32MultiArray sensor_arr_msg;
+ std_msgs::Int16MultiArray sensor_arr_msg;
  ros::Publisher pub("sensor_data", &sensor_arr_msg);
  //std_msgs::String str_msg;
  //ros::Publisher chatter("chatter",&str_msg);
@@ -49,9 +51,9 @@
  {
    nh.spinOnce();
    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-   x = euler.x();
-   y = euler.y();
-   z = euler.z();
+   x = int(euler.x());
+   y = int(euler.y());
+   z = int(euler.z());
    
    sensor_arr_msg.data[0] = x;
    sensor_arr_msg.data[1] = y;
