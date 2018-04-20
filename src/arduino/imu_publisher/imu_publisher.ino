@@ -16,15 +16,20 @@
  float x, y, z;
  
  ros::NodeHandle nh;
- std_msgs::Float32MultiArray imu_arr;
- ros::Publisher imu("imu", &imu_arr);
+ std_msgs::Float32MultiArray sensor_arr_msg;
+ ros::Publisher pub("sensor_data", &sensor_arr_msg);
+ //std_msgs::String str_msg;
+ //ros::Publisher chatter("chatter",&str_msg);
  
  
  void setup(void)
  {
    // ROS initialization
    nh.initNode();
-   nh.advertise(imu_arr);
+   sensor_arr_msg.data_length = 3;
+   
+   nh.advertise(pub);
+   //nh.advertise(chatter);
    
    /* Initialise the sensor */
   if(!bno.begin())
@@ -38,4 +43,21 @@
   
   bno.setExtCrystalUse(true);
    
+ }
+ 
+ void loop(void)
+ {
+   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+   x = euler.x();
+   y = euler.y();
+   z = euler.z();
+   
+   sensor_arr_msg.data[0] = x;
+   sensor_arr_msg.data[1] = y;
+   sensor_arr_msg.data[2] = z;
+   pub.publish(&sensor_arr_msg);
+   
+   
+   nh.spinOnce();
+   delay(100);
  }
