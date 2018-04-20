@@ -47,6 +47,7 @@
  
  void loop(void)
  {
+   nh.spinOnce();
    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
    x = euler.x();
    y = euler.y();
@@ -59,5 +60,5 @@
    
    
    nh.spinOnce();
-   delay(100);
+   delay(10);
  }
