@@ -8,6 +8,7 @@
  #include <ros.h>
  #include <std_msgs/Float32MultiArray.h>
  #include <std_msgs/Int16MultiArray.h>
+ #include <sensor_msgs/Imu.h>
  #include <Wire.h>
  #include <Adafruit_Sensor.h>
  #include <Adafruit_BNO055.h>
@@ -18,7 +19,8 @@
  
  ros::NodeHandle nh;
  //std_msgs::Float32MultiArray sensor_arr_msg;
- std_msgs::Int16MultiArray sensor_arr_msg;
+ //std_msgs::Int16MultiArray sensor_arr_msg;
+ sensor_msgs::Imu sensor_arr_msg;
  ros::Publisher pub("sensor_data", &sensor_arr_msg);
  //std_msgs::String str_msg;
  //ros::Publisher chatter("chatter",&str_msg);
@@ -28,7 +30,7 @@
  {
    // ROS initialization
    nh.initNode();
-   sensor_arr_msg.data_length = 3;
+   //sensor_arr_msg.data_length = 3;
    
    nh.advertise(pub);
    //nh.advertise(chatter);
@@ -51,13 +53,16 @@
  {
    nh.spinOnce();
    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-   x = int(euler.x());
-   y = int(euler.y());
-   z = int(euler.z());
+   imu::Vector<3> laccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
+   imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
    
-   sensor_arr_msg.data[0] = x;
-   sensor_arr_msg.data[1] = y;
-   sensor_arr_msg.data[2] = z;
+   sensor_arr_msg.orientation.x = euler.x();
+   sensor_arr_msg.orientation.y = euler.y();
+   sensor_arr_msg.orientation.z = euler.z();   
+   sensor_arr_msg.linear_acceleration.x = laccel.x();
+   sensor_arr_msg.linear_acceleration.y = laccel.y();
+   sensor_arr_msg.linear_acceleration.z = laccel.z();
+
    pub.publish(&sensor_arr_msg);
    
    
