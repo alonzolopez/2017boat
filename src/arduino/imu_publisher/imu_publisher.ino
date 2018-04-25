@@ -36,7 +36,7 @@
    //nh.advertise(chatter);
    
    /* Initialise the sensor */
-  if(!bno.begin())
+  if(!bno.begin(Adafruit_BNO055::OPERATION_MODE_COMPASS))
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -54,7 +54,7 @@
    nh.spinOnce();
    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
    imu::Vector<3> laccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-   imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
+   //imu::Vector<3> mag = bno.getVector(Adafruit_BNO055::VECTOR_MAGNETOMETER);
    
    sensor_arr_msg.orientation.x = euler.x();
    sensor_arr_msg.orientation.y = euler.y();
