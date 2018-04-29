@@ -13,7 +13,7 @@ vel_msg = Twist()
 
 def imu_callback(data):
 	# do stuff with the IMU data
-	print(data.orientation.x)
+	# print(data.orientation.x)
 	vel_msg.angular.x = 10
 	vel_msg.angular.y = 5
 	pub.publish(vel_msg)

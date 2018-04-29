@@ -23,6 +23,7 @@
  const int rmotorpin = 3;
  int range_analog = 0;
  int range_inches = 0;
+
  
  ros::NodeHandle nh;
  
@@ -41,10 +42,11 @@
  
  sensor_msgs::Imu sensor_arr_msg;
  std_msgs::Int32 rangemsg;
+ std_msgs::Int32 millisecsmsg;
  ros::Publisher pub("sensor_data", &sensor_arr_msg);
  ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &callback);
  ros::Publisher rangepub("range", &rangemsg);
- 
+ ros::Publisher millisecspub("millisecs", &millisecsmsg);
 
  
  
@@ -55,6 +57,7 @@
    
    nh.advertise(pub);
    nh.advertise(rangepub);
+   nh.advertise(millisecspub);
    nh.subscribe(sub);
    
    /* Initialise the sensor */
@@ -92,6 +95,9 @@
    range_inches = range_inches/6.4*2;
    rangemsg.data = range_inches;
    rangepub.publish(&rangemsg);
+   
+   millisecsmsg.data = millis();
+   millisecspub.publish(&millisecsmsg);
    
    
    nh.spinOnce();
