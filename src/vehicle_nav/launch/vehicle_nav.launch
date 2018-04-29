@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="rosserial_python" type="serial_node" name="serial_node"/>
+	<node pkg="vehicle_nav" type="vehicle_nav" name="vehicle_nav"/>
+</launch>
