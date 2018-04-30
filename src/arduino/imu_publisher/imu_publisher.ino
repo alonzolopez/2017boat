@@ -13,16 +13,29 @@
  #include <Adafruit_Sensor.h>
  #include <Adafruit_BNO055.h>
  #include <utility/imumaths.h>
- 
+ #include <NewPing.h>
+
+ // sonar pin and variable setup code
+ #define PING_PINL 10
+ #define PING_PINC 11
+ #define PING_PINR 12
+ #define MAX_DISTANCE 200
+ //int range_analog = 0;
+ //int range_inches = 0;
+ NewPing sonarL(PING_PINL, PING_PINL, MAX_DISTANCE);
+ NewPing sonarC(PING_PINC, PING_PINC, MAX_DISTANCE);
+ NewPing sonarR(PING_PINR, PING_PINR, MAX_DISTANCE);
+
+ // IMU setup code
  Adafruit_BNO055 bno = Adafruit_BNO055();
  float x, y, z;
- 
+
+ // motor control setup code
  int lcmd, rcmd;
  const int maxmotorspd = 200;
  const int lmotorpin = 2;
  const int rmotorpin = 3;
- int range_analog = 0;
- int range_inches = 0;
+
 
  
  ros::NodeHandle nh;
@@ -41,11 +54,15 @@
  }
  
  sensor_msgs::Imu sensor_arr_msg;
- std_msgs::Int32 rangemsg;
+ std_msgs::Int32 rangemsgL;
+ std_msgs::Int32 rangemsgC;
+ std_msgs::Int32 rangemsgR;
  std_msgs::Int32 millisecsmsg;
  ros::Publisher pub("sensor_data", &sensor_arr_msg);
  ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", &callback);
- ros::Publisher rangepub("range", &rangemsg);
+ ros::Publisher rangepubL("rangeL", &rangemsgL);
+ ros::Publisher rangepubC("rangeC", &rangemsgC);
+ ros::Publisher rangepubR("rangeR", &rangemsgR);
  ros::Publisher millisecspub("millisecs", &millisecsmsg);
 
  
@@ -56,7 +73,9 @@
    nh.initNode();
    
    nh.advertise(pub);
-   nh.advertise(rangepub);
+   nh.advertise(rangepubL);
+   nh.advertise(rangepubC);
+   nh.advertise(rangepubR);
    nh.advertise(millisecspub);
    nh.subscribe(sub);
    
@@ -90,11 +109,17 @@
 
    pub.publish(&sensor_arr_msg);
    
-   range_analog = analogRead(A0);
+   /*range_analog = analogRead(A0);
    range_inches = map(range_analog, 0, 1023, 0, 5000);
    range_inches = range_inches/6.4*2;
    rangemsg.data = range_inches;
-   rangepub.publish(&rangemsg);
+   rangepub.publish(&rangemsg);*/
+   rangemsgL.data = sonarL.ping_cm();
+   rangemsgC.data = sonarC.ping_cm();
+   rangemsgR.data = sonarR.ping_cm();
+   rangepubL.publish(&rangemsgL);
+   rangepubC.publish(&rangemsgC);
+   rangepubR.publish(&rangemsgR);
    
    millisecsmsg.data = millis();
    millisecspub.publish(&millisecsmsg);
