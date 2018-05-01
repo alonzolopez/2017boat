@@ -5,6 +5,26 @@
  * and actuates the motors
  */
  
+ /*  PINOUT!!!!
+  *   
+  *  SonarL:
+  *  Short between Trig & Echo
+  *  Trig & Echo - Digital 10
+  *  Vcc - 5V
+  *  SonarC:
+  *  Short between Trig & Echo
+  *  Trig & Echo - Digital 11
+  *  Vcc - 5V
+  *  SonarR:
+  *  Short between Trig & Echo
+  *  Trig & Echo - Digital 12
+  *  Vcc - 5V
+  *  
+  *  IMU:
+  *  Vin - 3.3V
+  *  SDA - SDA
+  *  SCL - SCL
+ */
  #include <ros.h>
  #include <sensor_msgs/Imu.h>
  #include <std_msgs/Int32.h>

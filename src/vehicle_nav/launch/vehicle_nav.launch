@@ -1,4 +1,5 @@
 <launch>
-	<node pkg="rosserial_python" type="serial_node" name="serial_node"/>
-	<node pkg="vehicle_nav" type="vehicle_nav" name="vehicle_nav"/>
+	<node pkg="vehicle_nav" name="vehicle_nav" type="vehicle_nav.py"/>
+	<node pkg="rosserial_python" name="serial_node" type="serial_node.py/>
+		<param name="foo" value="$(env /dev/ttyACM0)"/>
 </launch>
