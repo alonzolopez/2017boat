@@ -33,18 +33,12 @@
  #include <Adafruit_Sensor.h>
  #include <Adafruit_BNO055.h>
  #include <utility/imumaths.h>
- #include <NewPing.h>
+ 
 
  // sonar pin and variable setup code
- #define PING_PINL 10
- #define PING_PINC 11
- #define PING_PINR 12
- #define MAX_DISTANCE 200
- //int range_analog = 0;
- //int range_inches = 0;
- NewPing sonarL(PING_PINL, PING_PINL, MAX_DISTANCE);
- NewPing sonarC(PING_PINC, PING_PINC, MAX_DISTANCE);
- NewPing sonarR(PING_PINR, PING_PINR, MAX_DISTANCE);
+ #define PING_PINL A0
+ #define PING_PINC A1
+ #define PING_PINR A2
 
  // IMU setup code
  Adafruit_BNO055 bno = Adafruit_BNO055();
@@ -116,6 +110,8 @@
  void loop(void)
  {
    nh.spinOnce();
+
+   // Gather and pub imu data
    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
    imu::Vector<3> laccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
    
@@ -129,18 +125,15 @@
 
    pub.publish(&sensor_arr_msg);
    
-   /*range_analog = analogRead(A0);
-   range_inches = map(range_analog, 0, 1023, 0, 5000);
-   range_inches = range_inches/6.4*2;
-   rangemsg.data = range_inches;
-   rangepub.publish(&rangemsg);*/
-   rangemsgL.data = sonarL.ping_cm();
-   rangemsgC.data = sonarC.ping_cm();
-   rangemsgR.data = sonarR.ping_cm();
+   // Gather and pub range data
+   rangemsgL.data = analogRead(PING_PINL)/2;
+   rangemsgC.data = analogRead(PING_PINC)/2;
+   rangemsgR.data = analogRead(PING_PINR)/2;
    rangepubL.publish(&rangemsgL);
    rangepubC.publish(&rangemsgC);
    rangepubR.publish(&rangemsgR);
-   
+
+   // Pub time
    millisecsmsg.data = millis();
    millisecspub.publish(&millisecsmsg);
    
