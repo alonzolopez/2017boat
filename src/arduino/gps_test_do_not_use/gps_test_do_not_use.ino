@@ -30,7 +30,7 @@ void setup() {
   nh.initNode();
   nh.advertise(pub);
   
-  //Serial.begin(115200);
+  Serial.begin(115200);
 
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
   GPS.begin(9600);
@@ -104,6 +104,7 @@ void loop() {
   pub.publish(&gps_msg);
   nh.spinOnce();
   delay(2000);
+  Serial.println(GPS.latitude);
     
     /*Serial.print("\nTime: ");
     Serial.print(GPS.hour, DEC); Serial.print(':');
@@ -131,8 +132,8 @@ void loop() {
       Serial.print("Altitude: "); Serial.println(GPS.altitude);
       Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     
-    }
-    */
+    }*/
+    
 
 
 
