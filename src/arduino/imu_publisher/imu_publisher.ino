@@ -118,7 +118,7 @@
    sensor_arr_msg.orientation.x = euler.x();
    sensor_arr_msg.orientation.y = euler.y();
    sensor_arr_msg.orientation.z = euler.z();  
-   sensor_arr_msg.orientation.w = lcmd;
+   sensor_arr_msg.orientation.w = millis();
    sensor_arr_msg.linear_acceleration.x = laccel.x();
    sensor_arr_msg.linear_acceleration.y = laccel.y();
    sensor_arr_msg.linear_acceleration.z = laccel.z();
