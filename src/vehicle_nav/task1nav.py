@@ -16,7 +16,7 @@ speed = 0 # speed in m/s
 t = 0 # time in milliseconds
 old_t = 0 # old time in milliseconds
 
-desired_w = 10 # propeller rotational velocity in rev/s
+desired_w = 15 # propeller rotational velocity in rev/s
 desired_heading = 0.0 # due north
 
 def imu_callback(data):
@@ -26,7 +26,7 @@ def imu_callback(data):
 	# acceleration provided by the IMU)
 	actual_heading = remap_heading(data.orientation.x) # compass heading provided by IMU
 	error_heading = desired_heading - actual_heading
-	kp = 10
+	kp = 0.1
 	bias = kp*error_heading
 	vel_msg.angular.x = desired_w + bias
 	vel_msg.angular.y = desired_w - bias

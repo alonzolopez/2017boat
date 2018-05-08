@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="vehicle_nav" name="task1nav" type="task1nav.py"/>
+	<node pkg="rosserial_python" name="gps_node" type="serial_node.py">
+		<param name="port" value="/dev/ttyACM0"/>
+	</node>
+	<node pkg="rosserial_python" name="sensor_and_motor_node" type="serial_node.py">
+		<param name="port" value="/dev/ttyACM1"/>	
+	</node>
+</launch>
