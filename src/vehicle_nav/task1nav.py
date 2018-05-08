@@ -49,9 +49,6 @@ def update_speed(x_accel, y_accel, dt):
 	speed = speed + math.sqrt(dv_x**2+dv_y**2)
 	old_t = t # update old time
 	
-	
-	
-	
 def vehicle_nav():
 	rospy.init_node('vehicle_nav', anonymous = True)
 	rospy.Subscriber("sensor_data", Imu, imu_callback)
