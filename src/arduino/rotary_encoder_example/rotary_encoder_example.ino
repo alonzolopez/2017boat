@@ -13,17 +13,22 @@ https://github.com/BenTommyE/BenRotaryEncoder
 */
 
 // Encoder connect to digitalpin 2 and 3 on the Arduino.
+#define ENCODERA 2
+#define ENCODERB 4
 
 volatile unsigned int counter = 0;  //This variable will increase or decrease depending on the rotation of encoder
+long timelastrev = millis();
+float omega = 0;
+//long timesecondlastrev = 0;
 
 void setup() {
   Serial.begin (9600);
  
-  pinMode(2, INPUT);           // set pin to input
-  pinMode(3, INPUT);           // set pin to input
+  pinMode(ENCODERA, INPUT);           // set pin to input
+  pinMode(ENCODERB, INPUT);           // set pin to input
   
-  digitalWrite(2, HIGH);       // turn on pullup resistors
-  digitalWrite(3, HIGH);       // turn on pullup resistors
+  digitalWrite(ENCODERA, HIGH);       // turn on pullup resistors
+  digitalWrite(ENCODERB, HIGH);       // turn on pullup resistors
  
  
   //Setting up interrupt
@@ -31,30 +36,27 @@ void setup() {
   attachInterrupt(0, ai0, RISING);
   
   //B rising pulse from encodenren activated ai1(). AttachInterrupt 1 is DigitalPin nr 3 on moust Arduino.
-  attachInterrupt(1, ai1, RISING);
+  //attachInterrupt(1, ai1, RISING);
 }
 
 void loop() {
   // Send the value of counter
-  Serial.println ("counter: " + String(counter) + "revolutions: " + String(counter/400));
+  //Serial.println ("counter: " + String(counter) + "revolutions: " + String(counter/200));
+  delay(10);
 }
 
 void ai0() {
   // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
   // Check pin 3 to determine the direction
-  if(digitalRead(3)==LOW) {
+  if(digitalRead(ENCODERB)==LOW) {
     counter++;
   }else{
     counter--;
+  }
+  if(counter%200==0){
+    omega = 1.0*1000/((millis() - timelastrev));
+    Serial.println("w: " + String(omega) + "; time: " + String(millis()) + "; last time: " + String(timelastrev));
+    timelastrev = millis();
   }
 }
 
-void ai1() {
-  // ai0 is activated if DigitalPin nr 3 is going from LOW to HIGH
-  // Check with pin 2 to determine the direction
-  if(digitalRead(2)==LOW) {
-    counter--;
-  }else{
-    counter++;
-  }
-}

@@ -50,7 +50,8 @@
  const int lmotorpin = 2;
  const int rmotorpin = 3;
 
-
+ // encoder setup
+ volatile unsigned int counter = 0;
  
  ros::NodeHandle nh;
  
