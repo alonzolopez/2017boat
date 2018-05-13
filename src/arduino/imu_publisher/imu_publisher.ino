@@ -34,7 +34,6 @@
  #include <Adafruit_BNO055.h>
  #include <utility/imumaths.h>
  
-
  // sonar pin and variable setup code
  #define PING_PINL A0
  #define PING_PINC A1
@@ -45,10 +44,11 @@
  float x, y, z;
 
  // motor control setup code
- int lcmd, rcmd;
+ int lcmd, rcmd, servocmd;
  const int maxmotorspd = 200;
- const int lmotorpin = 2;
- const int rmotorpin = 3;
+ const int lmotorpin = 5;
+ const int rmotorpin = 6;
+ const int servomotorpin = 7;
 
  // encoder setup
  volatile unsigned int counter = 0;
@@ -59,12 +59,16 @@
  {
    lcmd = msg.angular.x;
    rcmd = msg.angular.y;
+   servocmd = msg.angular.z;
    lcmd = map(lcmd, 0,maxmotorspd, 0, 255);
    rcmd = map(rcmd, 0,maxmotorspd, 0, 255);
+   servocmd = map(servocmd, -90,90, 0, 255);
    lcmd = constrain(lcmd, 0, 255);
    rcmd = constrain(rcmd, 0, 255);
+   servocmd = constrain(servocmd, 0, 255);
    analogWrite(lmotorpin, lcmd);
    analogWrite(rmotorpin, rcmd);
+   analogWrite(servomotorpin, servocmd);
    nh.spinOnce();
  }
  

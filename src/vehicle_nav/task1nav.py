@@ -26,10 +26,12 @@ def imu_callback(data):
 	# acceleration provided by the IMU)
 	actual_heading = remap_heading(data.orientation.x) # compass heading provided by IMU
 	error_heading = desired_heading - actual_heading
-	kp = 0.1
-	bias = kp*error_heading
-	vel_msg.angular.x = desired_w + bias
-	vel_msg.angular.y = desired_w - bias
+	kp_thrust = 0.1
+	bias = kp_thrust*error_heading
+	kp_servo = 0.5
+	vel_msg.angular.x = desired_w + bias #motor rpm cmd
+	vel_msg.angular.y = desired_w - bias #motor rpm cmd
+	vel_msg.angular.z = kp_servo*error_heading
 	pub.publish(vel_msg)
 	
 def remap_heading(heading):
