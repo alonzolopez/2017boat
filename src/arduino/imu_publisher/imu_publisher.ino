@@ -51,7 +51,18 @@
  const int servomotorpin = 7;
 
  // encoder setup
- volatile unsigned int counter = 0;
+ const int leftEncoderPinA = 2;
+ const int leftEncoderPinB = 3;
+ const int rightEncoderPinA = 18;
+ const int rightEncoderPinB = 19;
+ volatile unsigned int lcounter = 0;
+ volatile unsigned int rcounter = 0;
+ volatile long timelastrevleft = millis();
+ volatile long timelastrevright = millis();
+ volatile float leftomega = 0;
+ volatile float rightomega = 0;
+ volatile int lefterror = 0;
+ volatile int righterror = 0;
  
  ros::NodeHandle nh;
  
@@ -97,6 +108,22 @@
    nh.advertise(rangepubR);
    nh.advertise(millisecspub);
    nh.subscribe(sub);
+
+   // Initialize encoder pinouts and interrupts
+  pinMode(leftEncoderPinA, INPUT);           // set pin to input
+  pinMode(leftEncoderPinB, INPUT);           // set pin to input
+  pinMode(rightEncoderPinA, INPUT);           // set pin to input
+  pinMode(rightEncoderPinB, INPUT);           // set pin to input
+  
+  digitalWrite(leftEncoderPinA, HIGH);       // turn on pullup resistors
+  digitalWrite(leftEncoderPinB, HIGH);       // turn on pullup resistors
+  digitalWrite(rightEncoderPinA, HIGH);       // turn on pullup resistors
+  digitalWrite(rightEncoderPinB, HIGH);       // turn on pullup resistors
+
+  //Setting up interrupt
+  //A rising pulse from encodenren activated ai0(). AttachInterrupt 0 is DigitalPin nr 2 on moust Arduino.
+  attachInterrupt(digitalPinToInterrupt(leftEncoderPinA), leftEncoder, RISING);
+  attachInterrupt(digitalPinToInterrupt(rightEncoderPinA), rightEncoder, RISING);
    
    /* Initialise the sensor */
   if(!bno.begin(Adafruit_BNO055::OPERATION_MODE_COMPASS))
@@ -127,6 +154,8 @@
    sensor_arr_msg.linear_acceleration.x = laccel.x();
    sensor_arr_msg.linear_acceleration.y = laccel.y();
    sensor_arr_msg.linear_acceleration.z = laccel.z();
+   sensor_arr_msg.angular_velocity.x = leftomega; //encoder rotational vel
+   sensor_arr_msg.angular_velocity.y = rightomega; //encoder rotational vel
 
    pub.publish(&sensor_arr_msg);
    
@@ -146,3 +175,33 @@
    nh.spinOnce();
    delay(20);
  }
+
+void leftEncoder() {
+  // leftEncoder is activated if DigitalPin nr 2 is going from LOW to HIGH
+  // Check pin 3 to determine the direction
+  if(digitalRead(leftEncoderPinB)==LOW) {
+    lcounter++;
+  }else{
+    lcounter--;
+  }
+  if(lcounter%200==0){
+    leftomega = 1.0*1000/((millis() - timelastrevleft));
+    lefterror = lcmd - leftomega;
+    timelastrevleft = millis();
+  }
+}
+
+void rightEncoder() {
+  // rightEncoder is activated if DigitalPin nr 2 is going from LOW to HIGH
+  // Check pin 3 to determine the direction
+  if(digitalRead(rightEncoderPinB)==LOW) {
+    rcounter++;
+  }else{
+    rcounter--;
+  }
+  if(rcounter%200==0){
+    rightomega = 1.0*1000/((millis() - timelastrevright));
+    righterror = rcmd - rightomega;
+    timelastrevright = millis();
+  }
+}
