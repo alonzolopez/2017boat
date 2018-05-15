@@ -45,7 +45,8 @@
 
  // motor control setup code
  int lcmd, rcmd, servocmd;
- const int maxmotorspd = 200;
+ int lpwm, rpwm, servopwm;
+ const int maxmotorspd = 2000;
  const int lmotorpin = 5;
  const int rmotorpin = 6;
  const int servomotorpin = 7;
@@ -71,16 +72,24 @@
    lcmd = msg.angular.x;
    rcmd = msg.angular.y;
    servocmd = msg.angular.z;
-   lcmd = map(lcmd, 0,maxmotorspd, 0, 255);
-   rcmd = map(rcmd, 0,maxmotorspd, 0, 255);
-   servocmd = map(servocmd, -90,90, 0, 255);
-   lcmd = constrain(lcmd, 0, 255);
-   rcmd = constrain(rcmd, 0, 255);
-   servocmd = constrain(servocmd, 0, 255);
-   analogWrite(lmotorpin, lcmd);
-   analogWrite(rmotorpin, rcmd);
-   analogWrite(servomotorpin, servocmd);
    nh.spinOnce();
+ }
+ void writeMotorSpeeds()
+ {
+   int kl = 1;
+   int kr = 1;
+   int kservo = 1;
+   lpwm= (kl * lefterror) + lcmd;
+   lpwm = map(lpwm, 0,maxmotorspd, 0, 255);
+   lpwm = constrain(lpwm, 0, 255);
+   rpwm= (kr * righterror) + rcmd;
+   rpwm = map(rpwm, 0,maxmotorspd, 0, 255);
+   rpwm = constrain(rpwm, 0, 255);
+   servopwm = map(servocmd, -90,90, 0, 255);
+   servopwm = constrain(servopwm, 0, 255);
+   analogWrite(lmotorpin, lpwm);
+   analogWrite(rmotorpin, rpwm);
+   analogWrite(servomotorpin, servopwm);
  }
  
  sensor_msgs::Imu sensor_arr_msg;
@@ -170,6 +179,7 @@
    // Pub time
    millisecsmsg.data = millis();
    millisecspub.publish(&millisecsmsg);
+   writeMotorSpeeds();
    
    
    nh.spinOnce();
