@@ -100,7 +100,7 @@ void loop() {
   timer = millis(); // reset the timer
   gps_msg.latitude = GPS.latitude;
   gps_msg.longitude = GPS.longitude;
-  gps_msg.altitude = GPS.speed;
+  gps_msg.altitude = GPS.angle;
   pub.publish(&gps_msg);
   nh.spinOnce();
   delay(2000);

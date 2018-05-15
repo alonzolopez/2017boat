@@ -121,7 +121,15 @@
    nh.spinOnce();
 
    // Gather and pub imu data
-   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    // Possible vector values can be:
+  // - VECTOR_ACCELEROMETER - m/s^2
+  // - VECTOR_MAGNETOMETER  - uT
+  // - VECTOR_GYROSCOPE     - rad/s
+  // - VECTOR_EULER         - degrees
+  // - VECTOR_LINEARACCEL   - m/s^2
+  // - VECTOR_GRAVITY       - m/s^2
+   //imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+   imu::Vector<3> quat = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
    imu::Vector<3> laccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
    
    sensor_arr_msg.orientation.x = euler.x();
