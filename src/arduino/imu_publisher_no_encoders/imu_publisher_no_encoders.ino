@@ -50,20 +50,6 @@
  const int lmotorpin = 5;
  const int rmotorpin = 6;
  const int servomotorpin = 7;
-
- // encoder setup
- const int leftEncoderPinA = 2;
- const int leftEncoderPinB = 3;
- const int rightEncoderPinA = 18;
- const int rightEncoderPinB = 19;
- volatile unsigned int lcounter = 0;
- volatile unsigned int rcounter = 0;
- volatile long timelastrevleft = millis();
- volatile long timelastrevright = millis();
- volatile float leftomega = 0;
- volatile float rightomega = 0;
- volatile int lefterror = 0;
- volatile int righterror = 0;
  
  ros::NodeHandle nh;
  
@@ -72,24 +58,17 @@
    lcmd = msg.angular.x;
    rcmd = msg.angular.y;
    servocmd = msg.angular.z;
-   nh.spinOnce();
- }
- void writeMotorSpeeds()
- {
-   int kl = 1;
-   int kr = 1;
-   int kservo = 1;
-   lpwm= (kl * lefterror) + lcmd;
-   lpwm = map(lpwm, 0,maxmotorspd, 0, 255);
+
+   lpwm = map(lcmd, 0, maxmotorspd, 0,255);
    lpwm = constrain(lpwm, 0, 255);
-   rpwm= (kr * righterror) + rcmd;
-   rpwm = map(rpwm, 0,maxmotorspd, 0, 255);
+   rpwm = map(rcmd, 0, maxmotorspd, 0,255);
    rpwm = constrain(rpwm, 0, 255);
    servopwm = map(servocmd, -90,90, 0, 255);
    servopwm = constrain(servopwm, 0, 255);
    analogWrite(lmotorpin, lpwm);
    analogWrite(rmotorpin, rpwm);
    analogWrite(servomotorpin, servopwm);
+   nh.spinOnce();
  }
  
  sensor_msgs::Imu sensor_arr_msg;
@@ -122,22 +101,6 @@
   pinMode(lmotorpin, OUTPUT);
   pinMode(rmotorpin, OUTPUT);
   pinMode(servomotorpin, OUTPUT);
-
-   // Initialize encoder pinouts and interrupts
-  pinMode(leftEncoderPinA, INPUT);           // set pin to input
-  pinMode(leftEncoderPinB, INPUT);           // set pin to input
-  pinMode(rightEncoderPinA, INPUT);           // set pin to input
-  pinMode(rightEncoderPinB, INPUT);           // set pin to input
-  
-  digitalWrite(leftEncoderPinA, HIGH);       // turn on pullup resistors
-  digitalWrite(leftEncoderPinB, HIGH);       // turn on pullup resistors
-  digitalWrite(rightEncoderPinA, HIGH);       // turn on pullup resistors
-  digitalWrite(rightEncoderPinB, HIGH);       // turn on pullup resistors
-
-  //Setting up interrupt
-  //A rising pulse from encodenren activated ai0(). AttachInterrupt 0 is DigitalPin nr 2 on moust Arduino.
-  attachInterrupt(digitalPinToInterrupt(leftEncoderPinA), leftEncoder, RISING);
-  attachInterrupt(digitalPinToInterrupt(rightEncoderPinA), rightEncoder, RISING);
    
    /* Initialise the sensor */
   if(!bno.begin(Adafruit_BNO055::OPERATION_MODE_COMPASS))
@@ -168,12 +131,8 @@
    sensor_arr_msg.linear_acceleration.x = laccel.x();
    sensor_arr_msg.linear_acceleration.y = laccel.y();
    sensor_arr_msg.linear_acceleration.z = laccel.z();
-   sensor_arr_msg.angular_velocity.x = leftomega; //encoder rotational vel
-   sensor_arr_msg.angular_velocity.y = rightomega; //encoder rotational vel
 
    pub.publish(&sensor_arr_msg);
-
-   writeMotorSpeeds();
    
    // Gather and pub range data
    rangemsgL.data = lpwm; //analogRead(PING_PINL)/2;
@@ -192,35 +151,3 @@
    nh.spinOnce();
    delay(20);
  }
-
-void leftEncoder() {
-  // leftEncoder is activated if DigitalPin nr 2 is going from LOW to HIGH
-  // Check pin 3 to determine the direction
-  if(digitalRead(leftEncoderPinB)==LOW) {
-    lcounter++;
-  }else{
-    lcounter--;
-  }
-  if(lcounter%200==0){
-    leftomega = 1.0*1000/((millis() - timelastrevleft));
-    lefterror = lcmd - leftomega;
-    timelastrevleft = millis();
-  }
-  nh.spinOnce();
-}
-
-void rightEncoder() {
-  // rightEncoder is activated if DigitalPin nr 2 is going from LOW to HIGH
-  // Check pin 3 to determine the direction
-  if(digitalRead(rightEncoderPinB)==LOW) {
-    rcounter++;
-  }else{
-    rcounter--;
-  }
-  if(rcounter%200==0){
-    rightomega = 1.0*1000/((millis() - timelastrevright));
-    righterror = rcmd - rightomega;
-    timelastrevright = millis();
-  }
-  nh.spinOnce();
-}

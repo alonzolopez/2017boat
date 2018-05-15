@@ -16,7 +16,7 @@ speed = 0 # speed in m/s
 t = 0 # time in milliseconds
 old_t = 0 # old time in milliseconds
 
-desired_w = 15 # propeller rotational velocity in rev/s
+desired_w = 30 # propeller rotational velocity in rev/s
 desired_heading = 0.0 # due north
 
 def imu_callback(data):
@@ -28,7 +28,7 @@ def imu_callback(data):
 	error_heading = desired_heading - actual_heading
 	kp_thrust = 0.1
 	bias = kp_thrust*error_heading
-	kp_servo = 0.5
+	kp_servo = 0.05
 	vel_msg.angular.x = desired_w + bias #motor rpm cmd
 	vel_msg.angular.y = desired_w - bias #motor rpm cmd
 	vel_msg.angular.z = kp_servo*error_heading
