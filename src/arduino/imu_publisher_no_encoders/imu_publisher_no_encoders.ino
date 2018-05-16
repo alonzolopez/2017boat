@@ -33,6 +33,7 @@
  #include <Adafruit_Sensor.h>
  #include <Adafruit_BNO055.h>
  #include <utility/imumaths.h>
+ #include <Servo.h>
  
  // sonar pin and variable setup code
  #define PING_PINL A0
@@ -50,6 +51,7 @@
  const int lmotorpin = 5;
  const int rmotorpin = 6;
  const int servomotorpin = 7;
+ Servo servomotor; 
  
  ros::NodeHandle nh;
  
@@ -63,11 +65,12 @@
    lpwm = constrain(lpwm, 0, 255);
    rpwm = map(rcmd, 0, maxmotorspd, 0,255);
    rpwm = constrain(rpwm, 0, 255);
-   servopwm = map(servocmd, -90,90, 0, 255);
-   servopwm = constrain(servopwm, 0, 255);
+   servopwm = map(servocmd, -90,90, 0, 180);
+   servopwm = 180; //servopwm + 45;
+   //servopwm = constrain(servopwm, 0, 180);
    analogWrite(lmotorpin, lpwm);
    analogWrite(rmotorpin, rpwm);
-   analogWrite(servomotorpin, servopwm);
+   //servomotor.write(servopwm);
    nh.spinOnce();
  }
  
@@ -100,7 +103,7 @@
   // set up motor pwm output pins
   pinMode(lmotorpin, OUTPUT);
   pinMode(rmotorpin, OUTPUT);
-  pinMode(servomotorpin, OUTPUT);
+  servomotor.attach(servomotorpin);
    
    /* Initialise the sensor */
   if(!bno.begin(Adafruit_BNO055::OPERATION_MODE_COMPASS))
@@ -128,8 +131,7 @@
   // - VECTOR_EULER         - degrees
   // - VECTOR_LINEARACCEL   - m/s^2
   // - VECTOR_GRAVITY       - m/s^2
-   //imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-   imu::Vector<3> quat = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
    imu::Vector<3> laccel = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
    
    sensor_arr_msg.orientation.x = euler.x();
@@ -141,11 +143,13 @@
    sensor_arr_msg.linear_acceleration.z = laccel.z();
 
    pub.publish(&sensor_arr_msg);
+
+   servomotor.write(180);
    
    // Gather and pub range data
    rangemsgL.data = lpwm; //analogRead(PING_PINL)/2;
    rangemsgC.data = rpwm; //analogRead(PING_PINC)/2;
-   rangemsgR.data = analogRead(PING_PINR)/2;
+   rangemsgR.data = servopwm; //analogRead(PING_PINR)/2;
    rangepubL.publish(&rangemsgL);
    rangepubC.publish(&rangemsgC);
    rangepubR.publish(&rangemsgR);
